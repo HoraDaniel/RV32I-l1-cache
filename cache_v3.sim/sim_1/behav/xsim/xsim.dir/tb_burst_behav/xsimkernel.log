@@ -1,0 +1,7 @@
+Running: xsim.dir/tb_burst_behav/xsimk.exe -simmode gui -wdb tb_burst_behav.wdb -simrunnum 0 -socket 50681
+Design successfully loaded
+Design Loading Memory Usage: 7684 KB (Peak: 7684 KB)
+Design Loading CPU Usage: 46 ms
+Simulation completed
+Simulation Memory Usage: 8304 KB (Peak: 8304 KB)
+Simulation CPU Usage: 62 ms

@@ -1,0 +1,19 @@
+0.7
+2020.2
+May 22 2024
+19:03:11
+F:/cache_v3/cache_v3.sim/sim_1/behav/xsim/glbl.v,1708598507,verilog,,,,glbl,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sim_1/new/tb_bram.v,1732066025,verilog,,,,tb_bram,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sim_1/new/tb_burst.v,1732072247,verilog,,,,tb_burst,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sim_1/new/tb_cache_top.v,1732092527,verilog,,,,tb_cache_top,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sim_1/new/tb_data_mem.v,1731321162,verilog,,,,tb_data_mem,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sim_1/new/tb_eightway.v,1732081202,verilog,,,,tb_eightway,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sim_1/new/tb_tag_mem.v,1732078122,verilog,,,,tb_tag_mem,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/burst_cont.v,1732096503,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/cache_controller.v,,burst_cont,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/cache_controller.v,1732098477,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/cache_data.v,,cache_controller,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/cache_data.v,1732100917,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/cache_top.v,,cache_data,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/cache_top.v,1732098420,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/eightway_LRU.v,,cache_top,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/eightway_LRU.v,1731671603,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/single_port_bram.v,,eightway_PLRU,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/single_port_bram.v,1732065597,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/tag_mem.v,,single_port_bram,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/tag_mem.v,1732098607,verilog,,F:/cache_v3/cache_v3.srcs/sources_1/new/way_decoder.v,,tag_mem,,,,,,,,
+F:/cache_v3/cache_v3.srcs/sources_1/new/way_decoder.v,1731673044,verilog,,F:/cache_v3/cache_v3.srcs/sim_1/new/tb_cache_top.v,,way_decoder,,,,,,,,
