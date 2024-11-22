@@ -22,7 +22,7 @@
 
 module tag_mem 
     #(  parameter TAG_BITS = 25, //DEFAULT IS 8 WAY
-        parameter INDEX_BITS = 3,//DEFAULT FOR 4 WAY
+        parameter INDEX_BITS = 3,
         parameter CACHE_WAY = 8,
         parameter CACHE_SIZE = 32
     )
@@ -31,37 +31,38 @@ module tag_mem
     input clk,
     input nrst,
     
-    input wr_en,
+    input                               i_wr_en,            // Enable tag writes
     
-    input [TAG_BITS-1:0] tag,
-    input [INDEX_BITS-1:0] index,
+    input [TAG_BITS-1:0]                i_tag,
+    input [INDEX_BITS-1:0]              i_index,
     
-    input [CACHE_WAY-1:0] LRU_set,
+    input [$clog2(CACHE_WAY)-1:0]       i_LRU_set,          // LRU set in decimal so we can already input it sa tag_data[i_LRU_set]
     
-    output wire hit,
-    output wire [$clog2(CACHE_WAY)-1:0] curr_way,
-    output wire [CACHE_WAY-1:0] way_accessed,
-    output wire valid_bit,
-    output wire dirty_bit,
-    output wire lru_bit
+    output wire                         o_hit,
+    output wire [$clog2(CACHE_WAY)-1:0] o_curr_way,         // current way accessed in decimal for input in data array
+    output wire [CACHE_WAY-1:0]         o_way_accessed,     // one hot encoding of the way accessed for input in Cache Controller
+    output wire                         o_LRU_set_tag_info
     );
     
     localparam NUM_SETS = CACHE_SIZE / CACHE_WAY;
-    localparam TAG_BITS_LRU = TAG_BITS + 3; // [Valid, Data, LRU] + TAG_BIT lengths
+    localparam TAG_BITS_LRU = TAG_BITS + 3;             // [Valid, Data, LRU] + TAG_BIT lengths
     
     
-    wire clk_inv = ~clk;
-    wire [$clog2(CACHE_WAY)-1:0] lru;
-    reg [CACHE_WAY-1:0] way_hit;
-    reg hit_r;
-    reg [TAG_BITS_LRU-1:0] tag_data[CACHE_WAY-1:0][NUM_SETS-1:0];
-    reg [TAG_BITS_LRU-1:0] tag_info;
     
-    assign valid_bit = tag_info[TAG_BITS_LRU-1];
-    assign dirty_bit = tag_info[TAG_BITS_LRU-2];
-    assign lru_bit = tag_info[TAG_BITS_LRU-3];
-    assign hit = (valid_bit & hit_r);
-    assign way_accessed = way_hit;
+    reg [CACHE_WAY-1:0]     r_way_hit;
+    reg                     r_hit;
+    reg [TAG_BITS_LRU-1:0]  tag_data[CACHE_WAY-1:0][NUM_SETS-1:0];
+    reg [TAG_BITS_LRU-1:0]  r_tag_info;
+    
+    wire valid_bit = r_tag_info[TAG_BITS_LRU-1];
+    wire [$clog2(CACHE_WAY)-1:0] curr_way;
+    wire hit = (valid_bit & r_hit);
+    
+    // ============== Assigning outputs ========================//
+    
+    assign o_hit = hit;
+    assign o_way_accessed = r_way_hit;
+    assign o_curr_way = curr_way;
     
     // HARDCODED VALUES FOR TB
     initial begin
@@ -70,29 +71,26 @@ module tag_mem
     end
     
    //================= Module instantiation ====================//
+   
    way_decoder #(.CACHE_WAY(CACHE_WAY)) //Thank you ChatGPT
         way_decode_to_data_array(
-            .way_hit(way_hit),
+            .way_hit(r_way_hit),
             .way_number(curr_way)
         );
         
-    way_decoder #(.CACHE_WAY(CACHE_WAY)) //Thank you ChatGPT
-        way_decode_LRU(
-            .way_hit(LRU_set),
-            .way_number(lru)
-        );
     
-    
+    // ============== TAG  READS ============================//
+    // loop through all possible ways to check if its a hit
     integer i;
     always@(*) begin
-        way_hit <= 0;
-        tag_info <= 0;
-        hit_r <= 0;
+        r_way_hit <= 0;
+        r_tag_info <= 0;
+        r_hit <= 0;
         for (i = 0; i < CACHE_WAY; i = i+1) begin
-            if ( (tag == tag_data[i][index][TAG_BITS_LRU-4:0])) begin
-                tag_info <= tag_data[i][index];
-                way_hit[i] <= 1;
-                hit_r <= 1;
+            if ( (i_tag == tag_data[i][i_index][TAG_BITS_LRU-4:0])) begin
+                r_tag_info <= tag_data[i][i_index];
+                r_way_hit[i] <= 1;
+                r_hit <= 1;
             end
         end
     end
@@ -103,17 +101,15 @@ module tag_mem
             
         end
         else begin
-            case (wr_en)
-                1'd1: begin
-                    // write tag
-                    if (hit) begin
-                        // Cache read hit, update the valid, dirty and LRU bit
-                        tag_data[curr_way][index][TAG_BITS_LRU-2] <= 1'b1;
-                    end else begin
-                        tag_data[lru][index] <= {3'b100, tag};
-                    end
+            if (i_wr_en) begin
+                // write tag
+                if (hit) begin
+                    // Cache read hit, update the dirty bit
+                    tag_data[curr_way][i_index][TAG_BITS_LRU-2] <= 1'b1;
+                end else begin
+                    tag_data[i_LRU_set][i_index] <= {3'b100, i_tag};
                 end
-            endcase
+            end
         end
     end
     

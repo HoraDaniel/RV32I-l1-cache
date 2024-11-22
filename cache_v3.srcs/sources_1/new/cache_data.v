@@ -30,34 +30,30 @@ module cache_data
     // Controller signals
     input clk,
     input nrst,
-    input wr,
-    input rd,
-    input hit,
-    input data_BRAM_valid,
+    input                           i_wr,
+    input                           i_rd,
+    input                           i_hit,
+    input                           i_data_BRAM_isValid,
     
-    input [CACHE_WAY-1:0] LRU_set,
+    input [CACHE_WAY-1:0]           i_LRU_set,
     
     // Address
-    input [$clog2(CACHE_WAY)-1:0] way,
-    input [INDEX_BITS-1:0] index,
-    input [OFFSET_BITS-1:0] offset,
+    input [$clog2(CACHE_WAY)-1:0]   i_way,
+    input [INDEX_BITS-1:0]          i_index,
+    input [OFFSET_BITS-1:0]         i_offset,
     
     // Data
-    input [31:0] data_i,
-    input [127:0] din_from_BRAM,
+    input [31:0]                    i_data,
+    input [127:0]                   i_data_from_BRAM,
     
     // Outputs
-    output [31:0] data_o // to load block?
+    output [31:0]                   o_data // to load block?
     );
     
     localparam NUM_SETS = CACHE_SIZE / CACHE_WAY;
     
     
     //================ Assigning internal wires =================// 
-    wire [$clog2(CACHE_WAY)-1:0] lru_way;
-    
-    way_decoder #(.CACHE_WAY(CACHE_WAY)) 
-        decode_LRU(.way_hit(LRU_set), .way_number(lru_way));
     
     
     //================ Assigning Registers =====================//
@@ -71,7 +67,7 @@ module cache_data
     end
     
     //================= Assigning outputs =======================//
-    assign data_o = (hit) ? data[way][index][offset] : 32'h0; // read hit
+    assign o_data = (i_hit) ? data[i_way][i_index][i_offset] : 32'h0; // read hit
     
     
     
@@ -81,23 +77,26 @@ module cache_data
             
         end
         else begin
-            case (wr) 
+            case (i_wr) 
                 1'd0: begin
                     //reads
                 end
                 
                 1'd1: begin
                     // writes
-                    if (hit) begin
-                        data[way][index][offset] <= data_i;
+                    if (i_hit) begin
+                        data[i_way][i_index][i_offset] <= i_data;
                     end  
                 end
             endcase
-            if (data_BRAM_valid) begin
-                            data[way][index][3] <= din_from_BRAM[31:0];
-                            data[way][index][2] <= din_from_BRAM[63:32];
-                            data[way][index][1] <= din_from_BRAM[95:64]; 
-                            data[way][index][0] <= din_from_BRAM[127:96];
+            if (i_data_BRAM_isValid) begin
+                // why use i_way if its for hits? because of the Tag Writes accessing first the LRU way, it automatically sets
+                // the LRU way as the accessed way (i_way), so if we used the actual LRU sent by the Cache controller,
+                // there will be discrepancies in the Tag Writes and Data Writes.
+                data[i_way][i_index][3] <= i_data_from_BRAM[31:0];
+                data[i_way][i_index][2] <= i_data_from_BRAM[63:32];
+                data[i_way][i_index][1] <= i_data_from_BRAM[95:64]; 
+                data[i_way][i_index][0] <= i_data_from_BRAM[127:96];
             end
         end
     end

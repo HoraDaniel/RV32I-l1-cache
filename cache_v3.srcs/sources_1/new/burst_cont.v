@@ -71,10 +71,12 @@ module burst_cont# (
     end 
     
     // sequentially fetch the data from the addrs
+    // This is so weird honestly
     always @(negedge clk) begin
         if (nrst && burst_en) begin
 
-           //addr_to_BRAM <= addrs[counter];
+           // begin on the next clock cycle
+           // Dunno why, but the timing is wrong if not
            if (!first_clock_cycle) begin
                 first_clock_cycle = 1;
            end

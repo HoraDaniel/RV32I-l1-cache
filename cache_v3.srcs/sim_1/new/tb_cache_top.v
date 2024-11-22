@@ -53,6 +53,10 @@ module tb_cache_top();
         #10
         addr = 12'h00000000;
         data_i = 32'hABABABAB;
+        #150
+        wr=0;
+        addr = 12'h004;
+        rd = 1;
         $finish;
     end
 
