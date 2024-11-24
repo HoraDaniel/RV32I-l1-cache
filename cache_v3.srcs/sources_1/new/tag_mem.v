@@ -17,11 +17,11 @@
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
-//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////  tik////////////////////////////////////////////
 
 
 module tag_mem 
-    #(  parameter TAG_BITS = 25, //DEFAULT IS 8 WAY
+    #(  parameter TAG_BITS = 5, //DEFAULT IS 8 WAY
         parameter INDEX_BITS = 3,
         parameter CACHE_WAY = 8,
         parameter CACHE_SIZE = 32
@@ -41,7 +41,7 @@ module tag_mem
     output wire                         o_hit,
     output wire [$clog2(CACHE_WAY)-1:0] o_curr_way,         // current way accessed in decimal for input in data array
     output wire [CACHE_WAY-1:0]         o_way_accessed,     // one hot encoding of the way accessed for input in Cache Controller
-    output wire                         o_LRU_set_tag_info
+    output wire [TAG_BITS + 2:0]        o_LRU_set_tag_info  // to Cache controller in case of eviction
     );
     
     localparam NUM_SETS = CACHE_SIZE / CACHE_WAY;
@@ -53,6 +53,8 @@ module tag_mem
     reg                     r_hit;
     reg [TAG_BITS_LRU-1:0]  tag_data[CACHE_WAY-1:0][NUM_SETS-1:0];
     reg [TAG_BITS_LRU-1:0]  r_tag_info;
+    reg [TAG_BITS_LRU-1:0]  r_LRU_set_tag_evicted;
+    reg                     r_found_flag;               // for eviction
     
     wire valid_bit = r_tag_info[TAG_BITS_LRU-1];
     wire [$clog2(CACHE_WAY)-1:0] curr_way;
@@ -63,11 +65,19 @@ module tag_mem
     assign o_hit = hit;
     assign o_way_accessed = r_way_hit;
     assign o_curr_way = curr_way;
+    assign o_LRU_set_tag_info = r_LRU_set_tag_evicted;
     
-    // HARDCODED VALUES FOR TB
+    // HARDCODED VALUES FOR TB (addr width = 12; way = 8)
+    integer x;
+    integer y;
     initial begin
-        tag_data[0][5] = {3'b100, 24'h0000ABC};
-        tag_data[1][2] = {3'b100, 24'h0000123};
+        for (x = 0; x < CACHE_WAY; x = x + 1) begin
+            for (y = 0; y < NUM_SETS; y = y + 1) begin
+                tag_data[x][y] = {3'b000, 5'h00}; // 0xFF is invalid data
+            end
+        end
+        tag_data[0][5] = {3'b100, 5'h0000ABC};
+        tag_data[1][2] = {3'b100, 5'h0000123};
     end
     
    //================= Module instantiation ====================//
@@ -88,11 +98,13 @@ module tag_mem
         r_hit <= 0;
         for (i = 0; i < CACHE_WAY; i = i+1) begin
             if ( (i_tag == tag_data[i][i_index][TAG_BITS_LRU-4:0])) begin
-                r_tag_info <= tag_data[i][i_index];
-                r_way_hit[i] <= 1;
-                r_hit <= 1;
+                if (tag_data[i][i_index][TAG_BITS_LRU-1]) begin
+                    r_tag_info <= tag_data[i][i_index];
+                    r_way_hit[i] <= 1;
+                    r_hit <= 1;
+                end   
             end
-        end
+        end 
     end
     
     //================= TAG WRITES ==================//
@@ -110,6 +122,29 @@ module tag_mem
                     tag_data[i_LRU_set][i_index] <= {3'b100, i_tag};
                 end
             end
+        end
+    end
+    
+    //================= LRU WAY TAG WRITES =================//
+    // at negedge of clock
+    integer j;
+    always@(negedge clk) begin
+        // This won't work
+        // We can't evict an invalid line, when the LRU pointer points another cache line on another Way
+        // We'll be evicting an entirely different line, and write at an entirely different Way
+        // That would be very bad
+        r_found_flag <= 0;
+        for (j=0; j < CACHE_WAY; j = j + 1) begin
+            // check if there are invalid cache line we can evict
+            // only once, so we have found flag
+            if (!tag_data[j][i_index][TAG_BITS_LRU-1] && !r_found_flag) begin
+                r_found_flag <= 1;
+                r_LRU_set_tag_evicted <= tag_data[j][i_index][TAG_BITS_LRU-4:0];
+            end
+        end
+        // All valids, so store the LRU
+        if (!r_found_flag) begin
+            r_LRU_set_tag_evicted <= tag_data[i_LRU_set][i_index][TAG_BITS_LRU-4:0];
         end
     end
     

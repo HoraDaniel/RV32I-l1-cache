@@ -23,7 +23,7 @@
 module eightway_PLRU(
     input [7:0] i_way_accessed, // one hot encoding input from way_hit
     input i_hit,
-    output reg [7:0] o_LRU_set
+    output reg [7:0] o_LRU
     );
     
     
@@ -110,14 +110,14 @@ module eightway_PLRU(
                 case (plru_bits[2])
                     1'b0: begin
                         //go right 
-                        if (plru_bits[0]) o_LRU_set <= 8'b01000000;
-                        else o_LRU_set <= 8'b10000000;
+                        if (plru_bits[0]) o_LRU <= 8'b01000000;
+                        else o_LRU <= 8'b10000000;
                     end
                     
                     1'b1: begin
                         //go left
-                        if (plru_bits[1]) o_LRU_set <= 8'b00010000;
-                        else o_LRU_set <= 8'b00100000;
+                        if (plru_bits[1]) o_LRU <= 8'b00010000;
+                        else o_LRU <= 8'b00100000;
                     end
                 endcase
             end
@@ -127,14 +127,14 @@ module eightway_PLRU(
                 case (plru_bits[5])
                     1'b0: begin
                         //go right
-                        if (plru_bits[3]) o_LRU_set <= 8'b00000100;
-                        else o_LRU_set <= 8'b00001000;
+                        if (plru_bits[3]) o_LRU <= 8'b00000100;
+                        else o_LRU <= 8'b00001000;
                     end
                     
                     1'b1: begin
                         //go left
-                        if (plru_bits[4]) o_LRU_set <= 8'b00000001;
-                        else o_LRU_set <= 8'b00000010;
+                        if (plru_bits[4]) o_LRU <= 8'b00000001;
+                        else o_LRU <= 8'b00000010;
                     end
                 endcase
             end

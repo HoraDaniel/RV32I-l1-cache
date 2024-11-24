@@ -55,6 +55,8 @@ module cache_top
     wire [$clog2(CACHE_WAY)-1:0]    curr_way;
     wire [CACHE_WAY-1:0]            way_accessed_to_controller;
     
+    wire [31:0]                     data_bus;
+    
     wire [$clog2(CACHE_WAY)-1:0]    LRU_set_wire;
     wire                            burst_en;
     wire [31:0]                     doutA_from_BRAM;
@@ -83,7 +85,8 @@ module cache_top
             .o_tag(tag), .o_index(index), .o_offset(offset),
             .o_LRU_set(LRU_set_wire),
             .o_burst_en(burst_en),
-            .o_wr_tag(wr_tag_en)
+            .o_wr_tag(wr_tag_en),
+            .o_data(data_bus)
 
         );
     
@@ -108,7 +111,7 @@ module cache_top
             .i_wr(wr_en),       .i_rd(rd),
             .i_hit(tag_hit), 
             .i_way(curr_way),   .i_index(index), .i_offset(offset),
-            .i_data(data_i),    .i_data_from_BRAM(data_wire_fromBram_toCache),
+            .i_data(data_bus),    .i_data_from_BRAM(data_wire_fromBram_toCache),
             .i_LRU_set(LRU_set_wire), 
             .i_data_BRAM_isValid(burst_done),
             
@@ -116,7 +119,7 @@ module cache_top
         );
         
     single_port_bram #(.ADDR_WIDTH(ADDR_WIDTH))
-        bram (.clkA(clk), .addrA(addr_wire_to_BRAM), .enaA(enaA), .doutA(doutA_from_BRAM));
+        bram (.clkA(clk), .addrA(addr_wire_to_BRAM), .enaA(1'b1), .doutA(doutA_from_BRAM));
         
         
     burst_cont #(.ADDR_WIDTH(ADDR_WIDTH))

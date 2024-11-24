@@ -21,7 +21,7 @@
 
 
 module burst_cont# (
-    parameter ADDR_WIDTH = 32
+    parameter ADDR_WIDTH = 12
     )(
     input clk,
     input nrst,
@@ -67,7 +67,7 @@ module burst_cont# (
             addrs[2] <= {addr[ADDR_WIDTH-1:4],4'h08};
             addrs[3] <= {addr[ADDR_WIDTH-1:4],4'h0C};  
         end
-        addr_to_BRAM <= addrs[counter];
+        addr_to_BRAM <= addrs[counter] >> 2; // IMPORTANT: REMOVE THE BITSHIFT BEFORE CONNECTING TO THE CORE WE'LL LOSE THE OFFSET
     end 
     
     // sequentially fetch the data from the addrs

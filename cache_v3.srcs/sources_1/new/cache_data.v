@@ -67,7 +67,7 @@ module cache_data
     end
     
     //================= Assigning outputs =======================//
-    assign o_data = (i_hit) ? data[i_way][i_index][i_offset] : 32'h0; // read hit
+    assign o_data = (i_hit && i_rd) ? data[i_way][i_index][i_offset] : 32'h0; // read hit
     
     
     

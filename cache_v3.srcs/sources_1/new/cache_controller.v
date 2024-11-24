@@ -52,13 +52,17 @@ module cache_controller
     
     output [TAG_BITS-1:0]           o_tag,
     output [INDEX_BITS-1:0]         o_index,
-    output [OFFSET_BITS-1:0]        o_offset
-    
+    output [OFFSET_BITS-1:0]        o_offset,
+    output [31:0]                   o_data
     );
     
     //================ Derived parameters ========================//
     localparam NUM_SETS = CACHE_SIZE / CACHE_WAY;
     
+    
+    
+    reg[ADDR_WIDTH-1:0]                     r_addr; // address latch
+    reg[31:0]                               r_data; // data latch
     
     //================ States declaration ======================//
     reg [3:0] state;
@@ -71,9 +75,11 @@ module cache_controller
     
     //================ Assigning Wires =========================//
     // Parse the address
-    assign o_offset = i_addr[3:2];                                // offset is fixed since there will always be 4 words per block // TODO: fix this
-    assign o_index = i_addr[ADDR_WIDTH - TAG_BITS - 1:4];
-    assign o_tag = i_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
+    assign o_offset = r_addr[3:2];                                // offset is fixed since there will always be 4 words per block // TODO: fix this
+    assign o_index = r_addr[ADDR_WIDTH - TAG_BITS - 1:4];
+    assign o_tag = r_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
+   
+  
    
     
     // Internal wires
@@ -86,12 +92,13 @@ module cache_controller
     assign o_burst_en = (state[2]) ? 1'b1 : 1'b0;
     assign o_wr_tag = (state[2] | state[1]) ? 1'b1 : 1'b0;
     assign o_LRU_set = LRU_way;
+    assign o_data = r_data;
      
     // ============ Module instantiation ========//
     eightway_PLRU LRU_cont(  
         .i_way_accessed(i_way_accessed),
         .i_hit(i_hit),
-        .o_LRU_set(LRU_set_wire)
+        .o_LRU(LRU_set_wire)
         );
     
     way_decoder #(.CACHE_WAY(CACHE_WAY)) //Thank you ChatGPT
@@ -104,10 +111,12 @@ module cache_controller
     // ============= FSM ==================//
     always@(posedge clk or negedge nrst) begin
         if (!nrst) begin
-            // Reset signals go here
+            // Reset signals go here 
             state <= S_IDLE;
         end
         else begin
+            r_addr <= i_addr;
+            r_data <= i_data;
             case (state) 
                 S_IDLE: begin
                     //wait for read/write signals
@@ -116,7 +125,11 @@ module cache_controller
                 end
                 
                 S_WRITE: begin
-                    if (i_hit) state <= S_IDLE;
+                // Did something here; In case of consecutive writes, do not go back to IDLE state?
+                    if (i_hit) begin
+                        if (i_wr) state <= S_WRITE;
+                        else state <= S_IDLE;
+                    end 
                     else state <= S_UPDATING;
                 end
                 
