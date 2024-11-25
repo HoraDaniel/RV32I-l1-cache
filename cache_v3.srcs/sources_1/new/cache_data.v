@@ -35,7 +35,7 @@ module cache_data
     input                           i_hit,
     input                           i_data_BRAM_isValid,
     
-    input [CACHE_WAY-1:0]           i_LRU_set,
+    input [$clog2(CACHE_WAY)-1:0]   i_LRU_set,
     
     // Address
     input [$clog2(CACHE_WAY)-1:0]   i_way,
@@ -45,9 +45,12 @@ module cache_data
     // Data
     input [31:0]                    i_data,
     input [127:0]                   i_data_from_BRAM,
+    input                           i_evict_en,
+    input                           i_guard_evict,
     
     // Outputs
-    output [31:0]                   o_data // to load block?
+    output [31:0]                   o_data, // to load block?
+    output [127:0]                  o_data_to_evict
     );
     
     localparam NUM_SETS = CACHE_SIZE / CACHE_WAY;
@@ -60,15 +63,28 @@ module cache_data
     reg [31:0] data[CACHE_WAY-1:0][NUM_SETS-1:0][3:0]; // data[way][index][offset]
     
    //================ Hardcoded values for tb ================//
+    integer x;
+    integer y;
     initial begin
+        for (x = 0; x < CACHE_WAY; x = x + 1) begin
+            for (y = 0; y < NUM_SETS; y = y + 1) begin
+                data[x][y][0] = 32'h0;
+                data[x][y][1] = 32'h0;
+                data[x][y][2] = 32'h0;
+                data[x][y][3] = 32'h0; 
+            end
+        end
         data[0][5][0] = 32'hB055ADE1;
         data[0][4][0] = 32'hDEADBEEF;
-    
+        data[4][0][0] = 32'hDADADADA;
+        data[4][0][1] = 32'h23232323;
+        data[4][0][2] = 32'hBEBEBEBE;
+        data[4][0][3] = 32'hCACACACA;
     end
     
     //================= Assigning outputs =======================//
     assign o_data = (i_hit && i_rd) ? data[i_way][i_index][i_offset] : 32'h0; // read hit
-    
+    assign o_data_to_evict = (i_guard_evict) ? {data[i_LRU_set][i_index][3],data[i_LRU_set][i_index][2],data[i_LRU_set][i_index][1],data[i_LRU_set][i_index][0]} : 128'h0;
     
     
     //================= SYCHRONOUS WRITES ===============================//

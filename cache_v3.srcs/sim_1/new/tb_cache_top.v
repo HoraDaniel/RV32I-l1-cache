@@ -23,7 +23,7 @@
 module tb_cache_top();
 
     reg clk, nrst;
-    reg [31:0] addr;
+    reg [11:0] addr;
     reg [31:0] data_i;
     reg rd, wr;
     
@@ -41,22 +41,32 @@ module tb_cache_top();
     initial begin
         clk = 0;
         nrst = 0;
-        #10
+        rd = 0;
+        wr = 0;
+        addr = 12'h0;
+        data_i = 32'h0;
+        #12
         nrst = 1;
-        #20
+        #18
         //data_i = 32'hC0E197AB;
-        addr = 12'h00055e50;
+        addr = 12'he50;
         data_i = 32'hBADC0DE;
         wr=1;
-        #10
-        #10
-        #10
-        addr = 12'h00000000;
+        #20
+        addr = 12'hE54 ;
         data_i = 32'hABABABAB;
-        #150
+        #20
         wr=0;
-        addr = 12'h004;
-        rd = 1;
+        rd=1;
+        addr = 12'he50;
+        #20
+        wr = 0;
+        rd = 0;
+        #20
+        wr = 1;
+        addr = 12'h000;
+        data_i = 32'hC0C0C0C0;
+        
         $finish;
     end
 

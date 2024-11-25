@@ -37,6 +37,7 @@ module eviction_controller #(
     input[127:0]                i_LRU_data_cache_line,
     
     input                       i_evict_en,
+    input                       i_guard_evict,           // A guard signal of sorts such that it only samples the correct LRU data?
     
     output [ADDR_WIDTH-1:0]     o_addr_to_BRAM,
     output [3:0]                o_weB,                  // necessary for the bytewise RAM for some reason
@@ -71,25 +72,27 @@ module eviction_controller #(
     end
     
     //============== Write to a register the completed address ===========//
-    always@(posedge clk) begin
+    always@(negedge clk) begin
         if (!nrst) begin
             // reset
             r_addr_complete <= 0;
             r_done <= 0;
             r_counter <= 0;
         end else begin
-            // assemble the address from the TAG + INDEX + OFFSET + BYTE OFFSET
-            // store in the buffer
-            r_addr_buffer[0] <= {i_tag_info_of_LRU,i_index, 2'b00, 2'b00};
-            r_addr_buffer[1] <= {i_tag_info_of_LRU,i_index, 2'b01, 2'b00};
-            r_addr_buffer[2] <= {i_tag_info_of_LRU,i_index, 2'b10, 2'b00};
-            r_addr_buffer[3] <= {i_tag_info_of_LRU,i_index, 2'b11, 2'b00};
-            
-            // store in the data buffer
-            r_data_buffer[0] <= i_LRU_data_cache_line[31:0];
-            r_data_buffer[1] <= i_LRU_data_cache_line[63:32];
-            r_data_buffer[2] <= i_LRU_data_cache_line[95:64];
-            r_data_buffer[3] <= i_LRU_data_cache_line[127:96];
+            if (i_guard_evict) begin
+                // assemble the address from the TAG + INDEX + OFFSET + BYTE OFFSET
+                // store in the buffer
+                r_addr_buffer[0] <= {i_tag_info_of_LRU,i_index, 2'b00, 2'b00};
+                r_addr_buffer[1] <= {i_tag_info_of_LRU,i_index, 2'b01, 2'b00};
+                r_addr_buffer[2] <= {i_tag_info_of_LRU,i_index, 2'b10, 2'b00};
+                r_addr_buffer[3] <= {i_tag_info_of_LRU,i_index, 2'b11, 2'b00};
+                
+                // store in the data buffer
+                r_data_buffer[0] <= i_LRU_data_cache_line[31:0];
+                r_data_buffer[1] <= i_LRU_data_cache_line[63:32];
+                r_data_buffer[2] <= i_LRU_data_cache_line[95:64];
+                r_data_buffer[3] <= i_LRU_data_cache_line[127:96];
+            end
         end
     end
     

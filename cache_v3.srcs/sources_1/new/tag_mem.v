@@ -65,7 +65,7 @@ module tag_mem
     assign o_hit = hit;
     assign o_way_accessed = r_way_hit;
     assign o_curr_way = curr_way;
-    assign o_LRU_set_tag_info = r_LRU_set_tag_evicted;
+    assign o_LRU_set_tag_info = tag_data[i_LRU_set][i_index];
     
     // HARDCODED VALUES FOR TB (addr width = 12; way = 8)
     integer x;
@@ -73,11 +73,13 @@ module tag_mem
     initial begin
         for (x = 0; x < CACHE_WAY; x = x + 1) begin
             for (y = 0; y < NUM_SETS; y = y + 1) begin
-                tag_data[x][y] = {3'b000, 5'h00}; // 0xFF is invalid data
+                tag_data[x][y] = {3'b000, 5'h00}; 
             end
         end
         tag_data[0][5] = {3'b100, 5'h0000ABC};
         tag_data[1][2] = {3'b100, 5'h0000123};
+        tag_data[4][5] = {3'b100, 5'h0000DEF};
+        tag_data[4][0] = {3'b110, 5'b11010};
     end
     
    //================= Module instantiation ====================//
@@ -127,26 +129,30 @@ module tag_mem
     
     //================= LRU WAY TAG WRITES =================//
     // at negedge of clock
+    /*
     integer j;
     always@(negedge clk) begin
         // This won't work
         // We can't evict an invalid line, when the LRU pointer points another cache line on another Way
         // We'll be evicting an entirely different line, and write at an entirely different Way
         // That would be very bad
+        
         r_found_flag <= 0;
         for (j=0; j < CACHE_WAY; j = j + 1) begin
             // check if there are invalid cache line we can evict
             // only once, so we have found flag
             if (!tag_data[j][i_index][TAG_BITS_LRU-1] && !r_found_flag) begin
                 r_found_flag <= 1;
-                r_LRU_set_tag_evicted <= tag_data[j][i_index][TAG_BITS_LRU-4:0];
+                r_LRU_set_tag_evicted <= tag_data[j][i_index]; // Send the entire tag info with the Valid, Dirty and LRU bit
             end
         end
         // All valids, so store the LRU
         if (!r_found_flag) begin
             r_LRU_set_tag_evicted <= tag_data[i_LRU_set][i_index][TAG_BITS_LRU-4:0];
         end
+        
+        r_LRU_set_tag_evicted <= tag_data[i_LRU_set][i_index];
     end
-    
+    */
     
 endmodule

@@ -39,6 +39,7 @@ module cache_controller
     input                           i_done_burst_cont,  // From the Burst Controller
     input [31:0]                    i_data,
     input [CACHE_WAY-1:0]           i_way_accessed,
+    input [TAG_BITS+3:0]            i_tag_info_of_LRU,
     
     // output: control signals
     output                          o_rdwr,             // WRITE = 1; READ = 0;
@@ -53,7 +54,9 @@ module cache_controller
     output [TAG_BITS-1:0]           o_tag,
     output [INDEX_BITS-1:0]         o_index,
     output [OFFSET_BITS-1:0]        o_offset,
-    output [31:0]                   o_data
+    output [31:0]                   o_data,
+    output                          o_evict_en,
+    output                          o_guard_evict // A control signal to allow the eviction controller to sample  only once 
     );
     
     //================ Derived parameters ========================//
@@ -79,7 +82,11 @@ module cache_controller
     assign o_index = r_addr[ADDR_WIDTH - TAG_BITS - 1:4];
     assign o_tag = r_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
    
-  
+    // Parse the LRU Tag and check if dirty or invalid
+    // If dirty, then we need to evict
+    // If diry but invalid, then no need to evict
+    wire LRU_valid_bit = i_tag_info_of_LRU[TAG_BITS + 2]; // really need to set this parametrizable
+    wire LRU_dirty_bit = i_tag_info_of_LRU[TAG_BITS + 1];
    
     
     // Internal wires
@@ -93,6 +100,8 @@ module cache_controller
     assign o_wr_tag = (state[2] | state[1]) ? 1'b1 : 1'b0;
     assign o_LRU_set = LRU_way;
     assign o_data = r_data;
+    assign o_guard_evict = ( (state == S_READ | state == S_WRITE) && !i_hit && LRU_dirty_bit  ) ? 1'b1 : 1'b0; 
+    assign o_evict_en = (state[2]) ? 1'b1 : 1'b0;
      
     // ============ Module instantiation ========//
     eightway_PLRU LRU_cont(  
@@ -113,6 +122,8 @@ module cache_controller
         if (!nrst) begin
             // Reset signals go here 
             state <= S_IDLE;
+            r_addr <= 0;
+            r_data <= 0;
         end
         else begin
             r_addr <= i_addr;
@@ -134,7 +145,11 @@ module cache_controller
                 end
                 
                 S_READ: begin
-                    if (i_hit) state <= S_IDLE;
+                    if (i_hit) begin
+                        if (i_rd) state <= S_READ;
+                        else state <= S_IDLE;
+                    end 
+                    else state <= S_UPDATING;
                 end
                 
                 S_UPDATING: begin
