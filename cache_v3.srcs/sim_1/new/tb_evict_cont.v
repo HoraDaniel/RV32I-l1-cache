@@ -48,6 +48,7 @@ module tb_evict_cont();
         .i_tag_info_of_LRU(r_tag_info_of_LRU),
         .i_index(r_index), .i_offset(r_offset),
         .i_LRU_data_cache_line(r_data),
+        .i_guard_evict(),
         .i_evict_en(evict_en),
         
         .o_addr_to_BRAM(addr_to_BRAM),
@@ -57,7 +58,7 @@ module tb_evict_cont();
         );
         
     single_port_bram #(.ADDR_WIDTH(ADDR_WIDTH))
-      bram (.clkA(clk), .addrA(addr_to_BRAM), .enaA(enaA), .dinA(dinA), .weA(wea));
+      bram (.clkA(clk), .addrA(addr_to_BRAM), .enaA(1'b1), .dinA(dinA), .weA(wea));
 
     
     
@@ -67,10 +68,10 @@ module tb_evict_cont();
         clk = 0;
         evict_en = 0;
         nrst = 0;
-        addr = 12'h00000000;
+        addr = 12'h000;
         #12
         nrst = 1;
-        #20
+        #18
         r_tag_info_of_LRU = 5'b00000;
         r_index = 3'b010;
         r_offset = 2'b00;

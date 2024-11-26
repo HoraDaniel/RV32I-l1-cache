@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="177.111 ns"></ZoomStartTime>
-      <ZoomEndTime time="311.512 ns"></ZoomEndTime>
-      <Cursor1Time time="210.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="364.001 ns"></ZoomEndTime>
+      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="190"></NameColumnWidth>
-      <ValueColumnWidth column_width="104"></ValueColumnWidth>
+      <NameColumnWidth column_width="180"></NameColumnWidth>
+      <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="17" />
+   <WVObjectSize size="44" />
    <wvobject fp_name="/tb_cache_top/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -33,8 +33,14 @@
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_cache_top/addr" type="array">
-      <obj_property name="ElementShortName">addr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">addr[31:0]</obj_property>
+      <obj_property name="ElementShortName">addr[11:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/wr" type="logic">
+      <obj_property name="ElementShortName">wr</obj_property>
+      <obj_property name="ObjectShortName">wr</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_cache_top/data_i" type="array">
       <obj_property name="ElementShortName">data_i[31:0]</obj_property>
@@ -43,67 +49,183 @@
    <wvobject fp_name="/tb_cache_top/data_o" type="array">
       <obj_property name="ElementShortName">data_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">data_o[31:0]</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_cache_top/wr" type="logic">
-      <obj_property name="ElementShortName">wr</obj_property>
-      <obj_property name="ObjectShortName">wr</obj_property>
+   <wvobject fp_name="/tb_cache_top/rd" type="logic">
+      <obj_property name="ElementShortName">rd</obj_property>
+      <obj_property name="ObjectShortName">rd</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/tag_hit" type="logic">
-      <obj_property name="ElementShortName">tag_hit</obj_property>
-      <obj_property name="ObjectShortName">tag_hit</obj_property>
+   <wvobject fp_name="/tb_cache_top/TOP/all_done" type="logic">
+      <obj_property name="ElementShortName">all_done</obj_property>
+      <obj_property name="ObjectShortName">all_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/index" type="array">
+      <obj_property name="ElementShortName">index[4:0]</obj_property>
+      <obj_property name="ObjectShortName">index[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider319">
+      <obj_property name="label">Control signals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_cache_top/TOP/cache_controller/state" type="array">
       <obj_property name="ElementShortName">state[3:0]</obj_property>
       <obj_property name="ObjectShortName">state[3:0]</obj_property>
+      <obj_property name="CustomSignalColor">#D2691E</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider139">
-      <obj_property name="label">Burst Controller</obj_property>
+   <wvobject fp_name="/tb_cache_top/TOP/tag" type="array">
+      <obj_property name="ElementShortName">tag[4:0]</obj_property>
+      <obj_property name="ObjectShortName">tag[4:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/offset" type="array">
+      <obj_property name="ElementShortName">offset[1:0]</obj_property>
+      <obj_property name="ObjectShortName">offset[1:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/index" type="array">
+      <obj_property name="ElementShortName">index[2:0]</obj_property>
+      <obj_property name="ObjectShortName">index[2:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/curr_way" type="array">
+      <obj_property name="ElementShortName">curr_way[2:0]</obj_property>
+      <obj_property name="ObjectShortName">curr_way[2:0]</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/tag_hit" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">tag_hit</obj_property>
+      <obj_property name="ObjectShortName">tag_hit</obj_property>
+      <obj_property name="label">hit</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider334">
+      <obj_property name="label">Tag Array</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/burst_en" type="logic">
-      <obj_property name="ElementShortName">burst_en</obj_property>
-      <obj_property name="ObjectShortName">burst_en</obj_property>
-      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/addr_to_BRAM" type="array">
-      <obj_property name="ElementShortName">addr_to_BRAM[11:0]</obj_property>
-      <obj_property name="ObjectShortName">addr_to_BRAM[11:0]</obj_property>
-      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/buffer" type="array">
-      <obj_property name="ElementShortName">buffer[127:0]</obj_property>
-      <obj_property name="ObjectShortName">buffer[127:0]</obj_property>
-      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/bram/doutA" type="array">
-      <obj_property name="ElementShortName">doutA[31:0]</obj_property>
-      <obj_property name="ObjectShortName">doutA[31:0]</obj_property>
-      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/burst_done" type="logic">
-      <obj_property name="ElementShortName">burst_done</obj_property>
-      <obj_property name="ObjectShortName">burst_done</obj_property>
-   </wvobject>
-   <wvobject type="divider" fp_name="divider144">
-      <obj_property name="label">Cache</obj_property>
+   <wvobject fp_name="/tb_cache_top/TOP/tag_array/tag_data[0][4]" type="array">
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[4][7:0]</obj_property>
+      <obj_property name="ObjectShortName">[4][7:0]</obj_property>
+      <obj_property name="label">Way 0 Set 4[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/tag_array/tag_data[0][5]" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[5][7:0]</obj_property>
+      <obj_property name="ObjectShortName">[5][7:0]</obj_property>
+      <obj_property name="label">Way 0 Set 5[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider329">
+      <obj_property name="label">Data Array</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/data_array/data[0][4]" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[4][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[4][3:0][31:0]</obj_property>
+      <obj_property name="label">Way 0 Set 4[3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/data_array/data[0][5]" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[5][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[5][3:0][31:0]</obj_property>
+      <obj_property name="label">Way 0 Set 5[3:0][31:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_cache_top/TOP/data_array/data[4][0]" type="array">
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="ElementShortName">[0][3:0][31:0]</obj_property>
       <obj_property name="ObjectShortName">[0][3:0][31:0]</obj_property>
-      <obj_property name="label">Way 4 [0][3:0][31:0]</obj_property>
-      <obj_property name="CustomSignalColor">#FFD700</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="label">Way 4 Set 0[3:0][31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_cache_top/TOP/tag_array/tag_data[4]" type="array">
-      <obj_property name="ElementShortName">[4][7:0][7:0]</obj_property>
-      <obj_property name="ObjectShortName">[4][7:0][7:0]</obj_property>
-      <obj_property name="CustomSignalColor">#FFD700</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
+   <wvobject type="divider" fp_name="divider173">
+      <obj_property name="label">Eviction Controller</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/r_data_to_BRAM" type="array">
+      <obj_property name="ElementShortName">r_data_to_BRAM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">r_data_to_BRAM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/o_addr_to_BRAM" type="array">
+      <obj_property name="ElementShortName">o_addr_to_BRAM[11:0]</obj_property>
+      <obj_property name="ObjectShortName">o_addr_to_BRAM[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/i_evict_en" type="logic">
+      <obj_property name="ElementShortName">i_evict_en</obj_property>
+      <obj_property name="ObjectShortName">i_evict_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/i_guard_evict" type="logic">
+      <obj_property name="ElementShortName">i_guard_evict</obj_property>
+      <obj_property name="ObjectShortName">i_guard_evict</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/r_addr_buffer" type="array">
+      <obj_property name="ElementShortName">r_addr_buffer[3:0][11:0]</obj_property>
+      <obj_property name="ObjectShortName">r_addr_buffer[3:0][11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/r_data_buffer" type="array">
+      <obj_property name="ElementShortName">r_data_buffer[0:3][31:0]</obj_property>
+      <obj_property name="ObjectShortName">r_data_buffer[0:3][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/r_counter" type="array">
+      <obj_property name="ElementShortName">r_counter[1:0]</obj_property>
+      <obj_property name="ObjectShortName">r_counter[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/evict_cont/r_done" type="logic">
+      <obj_property name="ElementShortName">r_done</obj_property>
+      <obj_property name="ObjectShortName">r_done</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider176">
+      <obj_property name="label">BRAM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/bram/dinB" type="array">
+      <obj_property name="ElementShortName">dinB[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dinB[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/bram/addrB" type="array">
+      <obj_property name="ElementShortName">addrB[11:0]</obj_property>
+      <obj_property name="ObjectShortName">addrB[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/bram/ram_block[835]" type="array">
+      <obj_property name="ElementShortName">[835][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[835][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/bram/ram_block[834]" type="array">
+      <obj_property name="ElementShortName">[834][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[834][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/bram/ram_block[833]" type="array">
+      <obj_property name="ElementShortName">[833][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[833][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/bram/ram_block[832]" type="array">
+      <obj_property name="ElementShortName">[832][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[832][31:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider236">
+      <obj_property name="label">Burst</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/done" type="logic">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/burst_en" type="logic">
+      <obj_property name="ElementShortName">burst_en</obj_property>
+      <obj_property name="ObjectShortName">burst_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/buffer" type="array">
+      <obj_property name="ElementShortName">buffer[127:0]</obj_property>
+      <obj_property name="ObjectShortName">buffer[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cache_top/TOP/burst_cont/counter" type="array">
+      <obj_property name="ElementShortName">counter[1:0]</obj_property>
+      <obj_property name="ObjectShortName">counter[1:0]</obj_property>
    </wvobject>
 </wave_config>

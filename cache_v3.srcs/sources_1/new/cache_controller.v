@@ -39,7 +39,7 @@ module cache_controller
     input                           i_done_burst_cont,  // From the Burst Controller
     input [31:0]                    i_data,
     input [CACHE_WAY-1:0]           i_way_accessed,
-    input [TAG_BITS+3:0]            i_tag_info_of_LRU,
+    input [TAG_BITS+2:0]            i_tag_info_of_LRU,
     
     // output: control signals
     output                          o_rdwr,             // WRITE = 1; READ = 0;
@@ -56,7 +56,13 @@ module cache_controller
     output [OFFSET_BITS-1:0]        o_offset,
     output [31:0]                   o_data,
     output                          o_evict_en,
-    output                          o_guard_evict // A control signal to allow the eviction controller to sample  only once 
+    output                          o_guard_evict, // A control signal to allow the eviction controller to sample  only once 
+    
+    
+    
+    //output for testbench only
+    output                          o_all_done,
+    output                          o_am_idle
     );
     
     //================ Derived parameters ========================//
@@ -66,21 +72,23 @@ module cache_controller
     
     reg[ADDR_WIDTH-1:0]                     r_addr; // address latch
     reg[31:0]                               r_data; // data latch
-    
+   
     //================ States declaration ======================//
     reg [3:0] state;
-    localparam S_IDLE = 4'b0000;
-    localparam S_READ = 4'b0001;
-    localparam S_WRITE = 4'b0010;
-    localparam S_WAITFORMM = 4'b0011;
-    localparam S_UPDATING = 4'b00100;
-    localparam S_READMM = 4'b00101; 
+    localparam S_IDLE = 3'b000;
+    localparam S_READ = 3'b001;
+    localparam S_WRITE = 3'b010;
+    localparam S_WAITFORMM = 3'b011;
+    localparam S_UPDATING = 3'b100;
+    localparam S_READMM = 3'b101; 
+    localparam S_DONE = 3'b110;
     
     //================ Assigning Wires =========================//
     // Parse the address
-    assign o_offset = r_addr[3:2];                                // offset is fixed since there will always be 4 words per block // TODO: fix this
-    assign o_index = r_addr[ADDR_WIDTH - TAG_BITS - 1:4];
-    assign o_tag = r_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
+    // try: remove addr and data latches
+    assign o_offset = i_addr[3:2];                                // offset is fixed since there will always be 4 words per block // TODO: fix this
+    assign o_index = i_addr[ADDR_WIDTH - TAG_BITS - 1:4];
+    assign o_tag = i_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
    
     // Parse the LRU Tag and check if dirty or invalid
     // If dirty, then we need to evict
@@ -96,12 +104,16 @@ module cache_controller
     
     //Outputs
     assign o_rdwr = (state[1]) ? 1'b1 : 1'b0;
-    assign o_burst_en = (state[2]) ? 1'b1 : 1'b0;
+    assign o_burst_en = (state == S_UPDATING) ? 1'b1 : 1'b0;
     assign o_wr_tag = (state[2] | state[1]) ? 1'b1 : 1'b0;
     assign o_LRU_set = LRU_way;
-    assign o_data = r_data;
-    assign o_guard_evict = ( (state == S_READ | state == S_WRITE) && !i_hit && LRU_dirty_bit  ) ? 1'b1 : 1'b0; 
-    assign o_evict_en = (state[2]) ? 1'b1 : 1'b0;
+    assign o_data = i_data; ////
+    assign o_guard_evict = ( (state == S_READ | state == S_WRITE) && !i_hit && LRU_dirty_bit && LRU_valid_bit  ) ? 1'b1 : 1'b0; 
+    assign o_evict_en = (state == S_UPDATING) ? 1'b1 : 0;
+     
+     
+     assign o_am_idle = (state == S_IDLE) ? 1'b1 : 1'b0;
+     assign o_all_done = (state == S_DONE) ? 1'b1 :1'b0;
      
     // ============ Module instantiation ========//
     eightway_PLRU LRU_cont(  
@@ -122,34 +134,44 @@ module cache_controller
         if (!nrst) begin
             // Reset signals go here 
             state <= S_IDLE;
-            r_addr <= 0;
-            r_data <= 0;
+            //r_addr <= 0;
+            //r_data <= 0;
         end
         else begin
-            r_addr <= i_addr;
-            r_data <= i_data;
+            
+            //r_addr <= i_addr;
+            //r_data <= i_data;
             case (state) 
                 S_IDLE: begin
-                    //wait for read/write signals
+                    //wait for read/write signals 
                     if (i_rd) state <= S_READ;
                     if (i_wr) state <= S_WRITE;
                 end
                 
                 S_WRITE: begin
                 // Did something here; In case of consecutive writes, do not go back to IDLE state?
+                // changed the states such that it has a DONE state for the TB for now
                     if (i_hit) begin
+                        /*
                         if (i_wr) state <= S_WRITE;
                         else state <= S_IDLE;
+                        */
+                        state <= S_DONE;
                     end 
                     else state <= S_UPDATING;
                 end
                 
                 S_READ: begin
                     if (i_hit) begin
+                    /*
                         if (i_rd) state <= S_READ;
                         else state <= S_IDLE;
-                    end 
+                    */
+                    state <= S_DONE;
+                    end
                     else state <= S_UPDATING;
+                    
+                    
                 end
                 
                 S_UPDATING: begin
@@ -158,9 +180,14 @@ module cache_controller
                         else if (i_wr) state <= S_WRITE;
                     end
                 end
+                
+                S_DONE: begin
+                    state <= S_IDLE;
+                end
             endcase
         end
     end
     
+
     
 endmodule

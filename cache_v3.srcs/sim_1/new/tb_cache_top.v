@@ -23,51 +23,54 @@
 module tb_cache_top();
 
     reg clk, nrst;
-    reg [11:0] addr;
-    reg [31:0] data_i;
-    reg rd, wr;
+    //reg [11:0] addr;
+    //reg [31:0] data_i;
+    //reg rd, wr;
     
+    reg[47:0] ram_block[8:0];   
+    
+
+    reg [4:0] index;
+    
+    wire [47:0] test;
     wire [31:0] data_o;
-        
+    wire all_done;
+    
+    
+    wire [3:0] rdwr = ram_block[index][47:44];
+    wire [11:0] addr = ram_block[index][43:32];
+    wire [31:0] data_i = ram_block[index][31:0];
+    
+    wire rd = rdwr[0];
+    wire wr = rdwr[1];
+    
+    
+    
     cache_top #(.CACHE_SIZE(64), .CACHE_WAY(8), .ADDR_WIDTH(12)) 
         TOP(
             .clk(clk),  .nrst(nrst),
             .addr(addr),
             .rd(rd),    .wr(wr),
-            .data_i(data_i),    .data_o(data_o)
+            .data_i(data_i),    .data_o(data_o), .all_done(all_done)
         );
         
     always #10 clk = ~clk;
     initial begin
         clk = 0;
         nrst = 0;
-        rd = 0;
-        wr = 0;
-        addr = 12'h0;
-        data_i = 32'h0;
-        #12
+        index = 0;
+        
+        $readmemh("tb_mem.mem", ram_block);
+        #10
+        index <= index + 1; // skip the first two test
+        #2
         nrst = 1;
         #18
-        //data_i = 32'hC0E197AB;
-        addr = 12'he50;
-        data_i = 32'hBADC0DE;
-        wr=1;
-        #20
-        addr = 12'hE54 ;
-        data_i = 32'hABABABAB;
-        #20
-        wr=0;
-        rd=1;
-        addr = 12'he50;
-        #20
-        wr = 0;
-        rd = 0;
-        #20
-        wr = 1;
-        addr = 12'h000;
-        data_i = 32'hC0C0C0C0;
-        
-        $finish;
+        index <= index + 1;
+    end
+    
+    always@(posedge clk) begin
+        if (all_done) index <= index + 1;
     end
 
 endmodule

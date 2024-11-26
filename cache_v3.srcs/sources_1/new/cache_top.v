@@ -33,7 +33,9 @@ module cache_top
         input wr,
         input [31:0] data_i,
         
-        output [31:0] data_o
+        output [31:0] data_o,
+        output all_done
+        
     );
     
     
@@ -74,6 +76,8 @@ module cache_top
     wire [127:0]                    data_wire_Cache_to_BRAM_B;
     wire [31:0]                     data_wire_to_BRAM_B;
     wire [3:0]                      weB;
+    
+    
     //================ Module Instantiations =========================//
     cache_controller #(.CACHE_WAY(CACHE_WAY), .CACHE_SIZE(CACHE_SIZE), .ADDR_WIDTH(ADDR_WIDTH), 
         .TAG_BITS(TAG_BITS), .INDEX_BITS(INDEX_BITS))
@@ -96,7 +100,9 @@ module cache_top
             .o_wr_tag(wr_tag_en),
             .o_data(data_bus),
             .o_evict_en(evict_en),
-            .o_guard_evict(guard_evict)
+            .o_guard_evict(guard_evict),
+            
+            .o_all_done(all_done)
 
         );
     
