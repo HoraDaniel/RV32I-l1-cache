@@ -42,7 +42,8 @@ module cache_controller
     input [TAG_BITS+2:0]            i_tag_info_of_LRU,
     
     // output: control signals
-    output                          o_rdwr,             // WRITE = 1; READ = 0;
+    output                          o_rd,
+    output                          o_wr,
     output                          o_wr_tag,
     output                          o_burst_en,
     
@@ -72,6 +73,8 @@ module cache_controller
     
     reg[ADDR_WIDTH-1:0]                     r_addr; // address latch
     reg[31:0]                               r_data; // data latch
+    reg                                     r_wr;
+    reg                                     r_rd;
    
     //================ States declaration ======================//
     reg [3:0] state;
@@ -86,9 +89,9 @@ module cache_controller
     //================ Assigning Wires =========================//
     // Parse the address
     // try: remove addr and data latches
-    assign o_offset = i_addr[3:2];                                // offset is fixed since there will always be 4 words per block // TODO: fix this
-    assign o_index = i_addr[ADDR_WIDTH - TAG_BITS - 1:4];
-    assign o_tag = i_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
+    assign o_offset = r_addr[3:2];                                // offset is fixed since there will always be 4 words per block // TODO: fix this
+    assign o_index = r_addr[ADDR_WIDTH - TAG_BITS - 1:4];
+    assign o_tag = r_addr[ADDR_WIDTH-1: ADDR_WIDTH - TAG_BITS];
    
     // Parse the LRU Tag and check if dirty or invalid
     // If dirty, then we need to evict
@@ -104,10 +107,12 @@ module cache_controller
     
     //Outputs
     assign o_rdwr = (state[1]) ? 1'b1 : 1'b0;
+    assign o_wr = r_wr;
+    assign o_rd = r_rd;
     assign o_burst_en = (state == S_UPDATING) ? 1'b1 : 1'b0;
     assign o_wr_tag = (state[2] | state[1]) ? 1'b1 : 1'b0;
     assign o_LRU_set = LRU_way;
-    assign o_data = i_data; ////
+    assign o_data = r_data; ////
     assign o_guard_evict = ( (state == S_READ | state == S_WRITE) && !i_hit && LRU_dirty_bit && LRU_valid_bit  ) ? 1'b1 : 1'b0; 
     assign o_evict_en = (state == S_UPDATING) ? 1'b1 : 0;
      
@@ -134,13 +139,15 @@ module cache_controller
         if (!nrst) begin
             // Reset signals go here 
             state <= S_IDLE;
-            //r_addr <= 0;
-            //r_data <= 0;
+            r_addr <= 0;
+            r_data <= 0;
         end
         else begin
             
-            //r_addr <= i_addr;
-            //r_data <= i_data;
+            r_addr <= i_addr;
+            r_data <= i_data;
+            r_rd <= i_rd;
+            r_wr <= i_wr;
             case (state) 
                 S_IDLE: begin
                     //wait for read/write signals 

@@ -49,6 +49,7 @@ module cache_top
     wire                            tag_hit;
     wire data_hit = tag_hit;
     wire wr_en;
+    wire rd_i;
     
     wire [TAG_BITS-1:0]             tag;
     wire [OFFSET_BITS-1:0]          offset;
@@ -93,7 +94,7 @@ module cache_top
             .i_done_burst_cont(burst_done),
             .i_tag_info_of_LRU(tag_bits_of_LRU_way),
             
-            .o_rdwr(wr_en),
+            .o_wr(wr_en),      .o_rd(rd_i),
             .o_tag(tag), .o_index(index), .o_offset(offset),
             .o_LRU_set(LRU_set_wire),
             .o_burst_en(burst_en),
@@ -125,7 +126,7 @@ module cache_top
     cache_data #(.OFFSET_BITS(OFFSET_BITS), .INDEX_BITS(INDEX_BITS), .CACHE_WAY(CACHE_WAY), .CACHE_SIZE(CACHE_SIZE))
         data_array(
             .clk(clk),  .nrst(nrst), 
-            .i_wr(wr_en),       .i_rd(rd),
+            .i_wr(wr_en),       .i_rd(rd_i),
             .i_hit(tag_hit), 
             .i_way(curr_way),   .i_index(index), .i_offset(offset),
             .i_data(data_bus),    .i_data_from_BRAM(data_wire_fromBram_toCache),

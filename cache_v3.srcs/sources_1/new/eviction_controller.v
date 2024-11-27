@@ -117,15 +117,17 @@ module eviction_controller #(
                 r_first_clock_cycle <= 0;
             end
            
-            if (r_counter == 0 && !i_evict_en) r_done <= 0; 
+            
+        end
+        
+        if (r_counter == 0 && !i_evict_en) r_done <= 0; 
             if (i_evict_en && !r_done) r_enaB <= 1;
             else r_enaB <= 0;
             
-            if (r_first_clock_cycle && r_enaB && i_evict_en) begin
+        if (r_first_clock_cycle && r_enaB && i_evict_en) begin
                 r_weB <= 4'b1111;
                 r_addr_complete <= r_addr_buffer[r_counter] >> 2;
                 r_data_to_BRAM <= r_data_buffer[r_counter];
-            end
         end
         
     end
